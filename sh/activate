@@ -1,0 +1,25 @@
+# ###############################################################
+# STANDARD-SECTION: SETUP
+# ###############################################################
+
+# Set home path
+export PYESSV_WRITER_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export PYESSV_WRITER_HOME="$( cd "$( dirname "${PYESSV_WRITER_HOME[0]}" )" && pwd )"
+
+# Set archive directory.
+mkdir -p $HOME/.esdoc/pyessv-archive
+
+# ###############################################################
+# STANDARD-SECTION: OPERATIONS
+# ###############################################################
+
+# Ensure shell scripts are executable.
+chmod a+x $PYESSV_WRITER_HOME/sh/*.sh
+
+# ###############################################################
+# STANDARD-SECTION: ALIASES
+# ###############################################################
+
+alias pyessv-write-ncas-amf=$PYESSV_WRITER_HOME/sh/write_ncas_amf.sh
+
+
