@@ -10,6 +10,7 @@
 import argparse
 import json
 import os
+import re
 
 import arrow
 
@@ -27,14 +28,14 @@ _ARGS.add_argument(
     )
 
 # Ensure we use fixed creation date.
-_CREATE_DATE = arrow.get('2017-11-30 00:00:00.000000+0000').datetime
+_CREATE_DATE = arrow.get('2018-03-09 00:00:00.000000+0000').datetime
 
 # CV authority = NCAS.
 _AUTHORITY = pyessv.create_authority(
     'NCAS',
     'NCAS Atmospheric Measurement Facility CVs',
     label='NCAS',
-    url='https://tba.tba.com/tba',
+    url='https://www.ncas.ac.uk/en/about-amf',
     create_date=_CREATE_DATE
     )
 
@@ -55,12 +56,24 @@ _SCOPE_GLOBAL = pyessv.create_scope(_AUTHORITY,
     create_date=_CREATE_DATE
     )
 
-# Map of AMF collections to data factories / name pre-formatters.
-_COLLECTIONS_AMF = {
-    'variable': {
-        'data_factory': lambda obj, name: obj[name]
-    }
-}
+def _get_collection_amf_config(source_dir):
+    """
+    Build a map of AMF collections to data factories / name pre-formatters
+    for each CV JSON file in the source directory.
+    """
+    collections = {}
+    data_fact_func = lambda obj, name: obj[name]
+
+    # Regex to product name from filename
+    json_filename_regex = re.compile("amf_([a-zA-Z0-9_]+).json")
+
+    for fname in os.listdir(source_dir):
+        match = json_filename_regex.match(fname)
+        if match:
+            product_name = match.groups(1)[0]
+            collections[product_name] = {"data_factory": data_fact_func}
+
+    return collections
 
 # Map of AMF collections to data factories / name pre-formatters.
 _COLLECTIONS_GLOBAL = {
@@ -73,7 +86,7 @@ def _main(args):
         raise ValueError('NCAS vocab directory does not exist')
 
     # Create AMF collections.
-    for typeof, parsers in _COLLECTIONS_AMF.items():
+    for typeof, parsers in _get_collection_amf_config(args.source).items():
         _create_collection_amf(args.source, typeof, parsers)
 
     # Create GLOBAL collections.
@@ -100,7 +113,7 @@ def _create_collection_amf(source, collection_type, collection_info):
         )
 
     # Load NCAS json data.
-    ncas_cv_data = _get_ncas_cv(source, collection_type, 'AMF_')
+    ncas_cv_data = _get_ncas_cv(source, collection_type, 'amf_')
 
     # Create terms.
     data_factory = collection_info['data_factory']
