@@ -65,7 +65,7 @@ def _get_collection_amf_config(source_dir):
     data_fact_func = lambda obj, name: obj[name]
 
     # Regex to product name from filename
-    json_filename_regex = re.compile("amf_([a-zA-Z0-9_]+).json")
+    json_filename_regex = re.compile("AMF_([a-zA-Z0-9_]+).json")
 
     for fname in os.listdir(source_dir):
         match = json_filename_regex.match(fname)
@@ -93,11 +93,8 @@ def _main(args):
     for typeof, handlers in _COLLECTIONS_GLOBAL.items():
         _create_collection_global(args.source, typeof, parsers)
 
-    # Add to the archive.
-    pyessv.add(_AUTHORITY)
-
-    # Save (to file system).
-    pyessv.save()
+    # Add to the archive and save to file system.
+    pyessv.archive(_AUTHORITY)
 
 
 def _create_collection_amf(source, collection_type, collection_info):
@@ -113,7 +110,7 @@ def _create_collection_amf(source, collection_type, collection_info):
         )
 
     # Load NCAS json data.
-    ncas_cv_data = _get_ncas_cv(source, collection_type, 'amf_')
+    ncas_cv_data = _get_ncas_cv(source, collection_type, 'AMF_')
 
     # Create terms.
     data_factory = collection_info['data_factory']
